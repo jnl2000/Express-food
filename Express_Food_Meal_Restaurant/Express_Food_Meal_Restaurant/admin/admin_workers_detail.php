@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php
+    session_start();
+    include("../conn_db.php");
+    include('../head.php');
+    if($_SESSION["utype"]!="shopowner"){
+        header("location: ../restricted.php");
+        exit(1);
+    }
+    ?>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../css/main.css" rel="stylesheet">
+    <link href="../css/menu.css" rel="stylesheet">
+    <title>Worker Profile </title>
+</head>
+
+<body class="d-flex flex-column h-100">
+  <?php include('nav_header_shop.php')?>
+
+    <div class="container px-5 py-4" id="cart-body">
+        <div class="row my-4 pb-2 border-bottom">
+            <a class="nav nav-item text-decoration-none text-muted mb-2" href="#" onclick="history.back();">
+                <i class="bi bi-arrow-left-square me-2"></i>Go back
+            </a>
+
+            <?php
+            if(isset($_GET["up_pwd"])){
+                if($_GET["up_pwd"]==1){
+                    ?>
+            <!-- START SUCCESSFULLY UPDATE PASSWORD -->
+            <div class="row row-cols-1 notibar">
+                <div class="col mt-2 ms-2 p-2 bg-success text-white rounded text-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-check-circle ms-2" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <path
+                            d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z" />
+                    </svg>
+                    <span class="ms-2 mt-2">Successfully updated worker password!</span>
+                </div>
+            </div>
+            <!-- END SUCCESSFULLY UPDATE PASSWORD -->
+            <?php }else{ ?>
+            <!-- START FAILED UPDATE PASSWORD -->
+            <div class="row row-cols-1 notibar">
+                <div class="col mt-2 ms-2 p-2 bg-danger text-white rounded text-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-x-circle ms-2" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <path
+                            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                    </svg><span class="ms-2 mt-2">Failed to update worker password.</span>
+                </div>
+            </div>
+            <!-- END FAILED UPDATE PASSWORD -->
+            <?php }
+                }
+            ?>
+
+            <h2 class="pt-3 display-6"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                    fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    <path fill-rule="evenodd"
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                </svg> My Profile</h2>
+        </div>
+
+        
+        <a class="btn btn-sm btn-danger mt-2 mt-md-0" href="admin_workers_delete.php?a_id=<?php echo $_GET["a_id"]?>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+                viewBox="0 0 16 16">
+                <path
+                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                <path fill-rule="evenodd"
+                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+            </svg>
+            Delete this profile
+        </a>
+
+        <!-- START CUSTOMER INFORMATION -->
+        <?php
+            //Select customer record from database
+            $cid = $_GET["a_id"];
+            $query = "SELECT username,name,email,type FROM admin WHERE a_id = {$cid} LIMIT 0,1";
+            $result = $mysqli ->query($query);
+            $row = $result -> fetch_array();
+        ?>
+        <div class="row row-cols-1 mt-4">
+            <dl class="row">
+                <dt class="col-sm-3">Username</dt>
+                <dd class="col-sm-9"><?php echo $row["username"];?></dd>
+
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9"><?php echo $row["name"];?></dd>
+
+                
+
+                <dt class="col-sm-3">Account Type</dt>
+                <dd class="col-sm-9"><?php
+                if($row["type"]=="ADM"){echo "Admin";}
+                else if($row["type"]=="WRK"){echo "Worker";}
+                else{echo "Others";}
+                ?>
+                </dd>
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9"><?php echo $row["email"];?></dd>
+            </dl>
+        </div>
+        <!-- END CUSTOMER INFORMATION -->
+    </div>
+    <div class="text-center p-2 p-2 mb-1 bg-dark text-white">
+    <p class="text-white">Copyright © 2022 Express Food Meal Restaurant. All Rights Reserved.  </p>
+
+  </div>
+</body>
+
+</html>
